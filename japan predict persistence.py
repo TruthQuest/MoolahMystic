@@ -614,7 +614,7 @@ if __name__ == '__main__':
     # Prepare models and data
     model_lr, model_rf, model_gbm, model_xgb, model_stacking, X_train_imputed, y_train, today_features_imputed, transformer = prepare_models_and_data(df)
     
-    "maybe df="df=train_model(df)
+    df=train_model(df)
     
     # Train and predict with Linear Regression, Random Forest, Gradient Boosting Machine, XGBoost, and Stacking Regressor
     today_prediction_lr, today_prediction_rf, today_prediction_gbm, today_prediction_xgb, today_prediction_stacking = train_and_predict(
