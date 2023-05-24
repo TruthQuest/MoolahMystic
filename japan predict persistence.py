@@ -1,3 +1,16 @@
+#########################
+"""
+This code and its contents are the property of the author, Eric Brattin, alone 
+and do not represent any group or organization, whether affiliated or not.
+ 
+Any views or opinions expressed in this code are solely those of the author and do not reflect 
+the views or opinions of any group or organization. 
+
+This code is provided as-is, without warranty of any kind, express or implied.
+"""
+#########################
+
+
 import importlib
 import time
 import datetime
