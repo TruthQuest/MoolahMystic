@@ -146,7 +146,7 @@ async def fetch_data(url, headers):
                 html = await response.text()
                 print("Data fetched successfully.")
 
-        duration = time.time() - start_time  # Calculate duration
+        duration = time.time() - start_time 
         print(f"Time taken fetch_data: {int(duration // 3600)} hours, {int((duration % 3600) // 60)} minutes, {int(duration % 60)} seconds")
 
         return pd.read_html(html)[0]
@@ -157,7 +157,7 @@ async def fetch_data(url, headers):
 def preprocess_and_load_data(url, headers):
     try:
         print("Loading and preprocessing data...")
-        start_time = time.time()  # Start timing
+        start_time = time.time()  
 
         loop = asyncio.get_event_loop()
         df = loop.run_until_complete(fetch_data(url, headers))
@@ -170,7 +170,7 @@ def preprocess_and_load_data(url, headers):
         df['Date'] = pd.to_datetime(df['Date']).dt.strftime("%B, %d, %Y")
         print("Data loaded and preprocessed successfully.")
 
-        duration = time.time() - start_time  # Calculate duration
+        duration = time.time() - start_time  
         print(f"Time taken preprocess_and_load_data: {int(duration // 3600)} hours, {int((duration % 3600) // 60)} minutes, {int(duration % 60)} seconds")
         # Print the head of df
         print("Head of df:")
@@ -183,12 +183,12 @@ def preprocess_and_load_data(url, headers):
 async def fetch_new_data(url, headers):
     try:
         print("Fetching new data...")
-        start_time = time.time()  # Start time
+        start_time = time.time()  
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 html = await response.text()
                 print("Data fetched successfully.")
-                end_time = time.time()  # End time
+                end_time = time.time()  
                 elapsed_time = end_time - start_time
                 hours = int(elapsed_time // 3600)
                 minutes = int((elapsed_time % 3600) // 60)
@@ -202,7 +202,7 @@ async def fetch_new_data(url, headers):
 def new_preprocess(new_df):
     try:
         print("Performing new data preprocessing...")
-        start_time = time.time()  # Start time
+        start_time = time.time()  
         if isinstance(new_df, pd.DataFrame):
             mask = new_df.apply(lambda row: row.astype(str).str.contains(
                 'table|update', case=False)).any(axis=1)
@@ -220,13 +220,12 @@ def new_preprocess(new_df):
             print("New data preprocessing completed successfully.")
         else:
             print("Invalid data format. Data preprocessing skipped.")
-        end_time = time.time()  # End time
+        end_time = time.time()  
         elapsed_time = end_time - start_time
         hours = int(elapsed_time // 3600)
         minutes = int((elapsed_time % 3600) // 60)
         seconds = int(elapsed_time % 60)
-        print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")  # Print time taken
-        # Print the head of new_df
+        print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")  
         print("\nHead of new_df:")
         print(tabulate(new_df.head(10), headers='keys', tablefmt='orgtbl'))
     except Exception as e:
@@ -240,7 +239,6 @@ def merge_and_process_data(df, new_df):
         merged_df = pd.concat([df, new_df], ignore_index=True)
         merged_df = merged_df.assign(Date=pd.to_datetime(merged_df['Date']).dt.date).sort_values('Date')
 
-        # Check if merging was successful
         if len(merged_df) <= len(df):
             print("Merging and processing data failed: No new data added.")
             return None
@@ -267,7 +265,6 @@ def sequential_predictions(model, X, y, future_days):
             next_day_prediction = model.predict(next_day_features)
             predictions.append(next_day_prediction)
 
-            # Update your training data with the new prediction
             X = np.vstack((X, next_day_features))
             y = np.append(y, next_day_prediction)
 
@@ -313,57 +310,42 @@ def send_predictions_table_email():
     table = list(zip(dates, rf_predictions, gbm_predictions, xgb_predictions, stacking_predictions))
     df = pd.DataFrame(table, columns=['Date', 'RF_Prediction', 'GBM_Prediction', 'XGB_Prediction', 'Stacking_Prediction'])
 
-    # Print the table
     print(tabulate(table, headers=['Date', 'Random Forest', 'GBM', 'XGBoost', 'Stacking'], tablefmt='orgtbl'))
 
-    # Get the current date
     current_date = datetime.datetime.now().strftime('%B_%d_%Y').lower()
 
-    # Save the DataFrame to an Excel file
     filename = f"{current_date}_predictions.xlsx"
     df.to_excel(filename, index=False)
 
-    # Email details
     sender_email = getpass.getpass("Enter your email address: ")
     sender_password = getpass.getpass("Enter your email password: ")
     receiver_email = 'ebrattin@gmail.com'
 
-    # Email content
     subject = 'Predictions Table'
     body = 'Please find the predictions table attached.'
 
-    # Create a multipart message and set the email headers
     message = MIMEMultipart()
     message['From'] = sender_email
     message['To'] = receiver_email
     message['Subject'] = subject
 
-    # Add the body text to the message
     message.attach(MIMEText(body, 'plain'))
 
-    # Open the file in binary mode
     with open(filename, 'rb') as attachment:
-        # Instance of MIMEBase and named as p
+   p
         p = MIMEBase('application', 'octet-stream')
-        # To change the payload into encoded form
         p.set_payload(attachment.read())
-        # Encode into base64
         encoders.encode_base64(p)
-        # Add header
         p.add_header('Content-Disposition', f"attachment; filename= {filename}")
-        # Attach the instance 'p' to the multipart message
         message.attach(p)
 
-    # Create a secure connection with the SMTP server
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(sender_email, sender_password)
 
-    # Convert the message to a string and send the email
     text = message.as_string()
     server.sendmail(sender_email, receiver_email, text)
 
-    # Close the connection
     server.quit()    
 
 
@@ -374,11 +356,11 @@ def feature_engineering_batch(df_batch, model_lr, model_rf, model_gbm, model_xgb
         return np.array([]), np.array([]), np.array([]), np.array([]), np.array([])
 
     X_today = df_batch[['SMA_20', 'SMA_50']].values
-    start_time = time.time()  # Start timing
+    start_time = time.time()  
     predictions_lr, predictions_rf, predictions_gbm, predictions_xgb, predictions_stacking = train_and_predict(
         model_lr, model_rf, model_gbm, model_xgb, model_stacking, X_train_imputed, y_train, X_today, transformer
     )
-    duration = time.time() - start_time  # Calculate duration
+    duration = time.time() - start_time  
     print(f"Time taken for feature_engineering_batch: {duration} seconds")
 
     return predictions_lr, predictions_rf, predictions_gbm, predictions_xgb, predictions_stacking
@@ -392,20 +374,18 @@ def feature_engineering(df, model_lr, model_rf, model_gbm, model_xgb, model_stac
         batch_count = n // batch_size
         remaining_rows = n % batch_size
 
-        # Initialize empty arrays for predictions
         predictions_lr = np.empty(n)
         predictions_rf = np.empty(n)
         predictions_gbm = np.empty(n)
         predictions_xgb = np.empty(n)
         predictions_stacking = np.empty(n)
 
-        # Vectorized hash function for the dataframe rows
         def hash_row(row):
             row_bytes = row.values.tobytes()
             return hashlib.sha256(row_bytes).hexdigest()
 
         processed_rows = np.zeros(n, dtype=bool)
-        start_time = time.time()  # Start time
+        start_time = time.time()
 
         for i in range(batch_count + 1):
             start_idx = i * batch_size
@@ -414,7 +394,6 @@ def feature_engineering(df, model_lr, model_rf, model_gbm, model_xgb, model_stac
 
             print(f"Processing batch {i + 1} of {batch_count + 1}...")
 
-            # Filter out duplicate rows
             df_batch['Hash'] = df_batch.apply(hash_row, axis=1)
             mask = ~df_batch['Hash'].duplicated()
             df_batch_filtered = df_batch[mask]
@@ -432,16 +411,14 @@ def feature_engineering(df, model_lr, model_rf, model_gbm, model_xgb, model_stac
             predictions_xgb[start_idx_filtered:end_idx_filtered] = batch_xgb
             predictions_stacking[start_idx_filtered:end_idx_filtered] = batch_stacking
 
-            # Mark processed rows as True
             processed_rows[start_idx:end_idx] = True
 
-        end_time = time.time()  # End time
+        end_time = time.time()
         elapsed_time = end_time - start_time
         hours = int(elapsed_time // 3600)
         minutes = int((elapsed_time % 3600) // 60)
         seconds = int(elapsed_time % 60)
-
-        # Assign the prediction arrays to DataFrame columns
+        
         df['LR_Prediction'] = predictions_lr
         df['RF_Prediction'] = predictions_rf
         df['GBM_Prediction'] = predictions_gbm
@@ -461,10 +438,9 @@ def feature_engineering(df, model_lr, model_rf, model_gbm, model_xgb, model_stac
 def prepare_models_and_data(df):
     try:
         print("Preparing models and data...")
-     
-        # Define models
+
         def initialize_models():
-            # Initialize and return the models
+
             model_lr = LR()
             model_rf = RandomForestRegressor(random_state=42)
             model_gbm = GradientBoostingRegressor(random_state=42)
@@ -477,38 +453,30 @@ def prepare_models_and_data(df):
             return model_lr, model_rf, model_gbm, model_xgb, model_stacking
 
         print("Initializing models...")
-        start_time = time.time()  # Start time
+        start_time = time.time() 
         model_lr, model_rf, model_gbm, model_xgb, model_stacking = initialize_models()
-        end_time = time.time()  # End time
+        end_time = time.time()  
         elapsed_time = end_time - start_time
         hours = int(elapsed_time // 3600)
         minutes = int((elapsed_time % 3600) // 60)
         seconds = int(elapsed_time % 60)
-        
 
         print("Models initialized.")
 
-        # Add rolling means to DataFrame
         df['SMA_20'] = df['Rate'].rolling(window=20).mean()
         df['SMA_50'] = df['Rate'].rolling(window=50).mean()
-    
-        # Prepare training data
+
         X_train = df[['SMA_20', 'SMA_50']].values
         y_train = df['Rate']
-    
-        # Handle missing values with SimpleImputer
         imputer = SimpleImputer()
         X_train_imputed = imputer.fit_transform(X_train)
 
-        # Prepare today's features (last available values)
         today_features = df[['SMA_20', 'SMA_50']].tail(1)
         today_features_imputed = imputer.transform(today_features)
-    
-        # Define the custom transformer with column names as strings
         transformer = ColumnSelector(columns=['SMA_20', 'SMA_50'])
     
         print("Models and data preparation completed successfully.")
-        print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")  # Print time taken
+        print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")
       
 
     except Exception as e:
@@ -526,7 +494,6 @@ def train_and_predict_single(args):
         print(f"Fitting {model_name} model...")
         
         if model_name == 'model_xgb':
-            # Split the data into train and validation sets for early stopping
             X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
             model.fit(X_train, y_train, early_stopping_rounds=10, eval_set=[(X_val, y_val)], verbose=False)
         else:
@@ -541,7 +508,6 @@ if __name__ == '__main__':
 
     def train_and_predict(model_lr, model_rf, model_gbm, model_xgb, model_stacking, X_train, y_train, today_features, transformer):
         try:
-            # Convert today_features to a DataFrame and transform using the custom transformer
             today_features_df = pd.DataFrame(today_features, columns=['SMA_20', 'SMA_50'])
             today_features_transformed = transformer.transform(today_features_df)
     
@@ -551,15 +517,15 @@ if __name__ == '__main__':
             y_train_list = [y_train] * 5
             today_features_list = [today_features_transformed] * 5
     
-            start_time = time.time()  # Start time
+            start_time = time.time()
             with Pool(processes=min(5, cpu_count())) as pool:
                 results = pool.map(train_and_predict_single, zip(models, model_names, X_train_list, y_train_list, today_features_list))
-            end_time = time.time()  # End time
+            end_time = time.time()  
             elapsed_time = end_time - start_time
             hours = int(elapsed_time // 3600)
             minutes = int((elapsed_time % 3600) // 60)
             seconds = int(elapsed_time % 60)
-            print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")  # Print time taken
+            print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")
     
             return tuple(results)
     
@@ -568,11 +534,9 @@ if __name__ == '__main__':
             return None, None, None, None, None
 
     def train_model(df):
-        # Prepare training data
         X_train = df[['SMA_20', 'SMA_50']].values
         y_train = df['Rate']
-        
-        # Create pipelines for each model
+
         pipeline_rf = Pipeline([
             ('imputer', SimpleImputer(strategy='mean')),
             ('model', RandomForestRegressor(random_state=42))
@@ -595,8 +559,6 @@ if __name__ == '__main__':
                 final_estimator=LinearSVR(max_iter=10000)
             ))
         ])
-        
-        # Fit the pipelines to the training data
         pipeline_rf.fit(X_train, y_train)
         pipeline_gbm.fit(X_train, y_train)
         pipeline_xgb.fit(X_train, y_train)
@@ -623,32 +585,21 @@ if __name__ == '__main__':
     
  
     df = merge_and_process_data(df, new_df)
-    
-    # Prepare models and data
+
     model_lr, model_rf, model_gbm, model_xgb, model_stacking, X_train_imputed, y_train, today_features_imputed, transformer = prepare_models_and_data(df)
     
     df=train_model(df)
-    
-    # Train and predict with Linear Regression, Random Forest, Gradient Boosting Machine, XGBoost, and Stacking Regressor
+
     today_prediction_lr, today_prediction_rf, today_prediction_gbm, today_prediction_xgb, today_prediction_stacking = train_and_predict(
         model_lr, model_rf, model_gbm, model_xgb, model_stacking, X_train_imputed, y_train, today_features_imputed, transformer
     )
-    
-    # # Get next 5 days' predictions for each model
-    # rf_predictions = sequential_predictions(pipeline_rf, X_train, y_train, 5)
-    # gbm_predictions = sequential_predictions(pipeline_gbm, X_train, y_train, 5)
-    # xgb_predictions = sequential_predictions(pipeline_xgb, X_train, y_train, 5)
-    # stacking_predictions = sequential_predictions(pipeline_stacking, X_train, y_train, 5)
-    
-    # Perform feature engineering on df
+
     df = feature_engineering(df, model_lr, model_rf, model_gbm, model_xgb, model_stacking, X_train_imputed, y_train, transformer)
     
-    # User inputs
-    # enter date in the same format as your 'Date' column
+
     purchase_date = "May, 10, 2023"
-    amount_bought = 100  # amount of currency bought
-    
-    # Get the purchase rate
+    amount_bought = 100 
+
     purchase_rate = get_purchase_rate(df, purchase_date)
     
     earnings_lr = calculate_earnings(
@@ -676,8 +627,7 @@ if __name__ == '__main__':
             f"Based on Stacking, you would now have: ${amount_bought + earnings_stk}")
     
     profiler.disable()
-    
-    # Generate and print profiling statistics
+
     stats = pstats.Stats(profiler)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.print_stats()
