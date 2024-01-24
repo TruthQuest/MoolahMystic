@@ -171,8 +171,7 @@ def preprocess_and_load_data(url, headers):
         print("Data loaded and preprocessed successfully.")
 
         duration = time.time() - start_time  
-        print(f"Time taken preprocess_and_load_data: {int(duration // 3600)} hours, {int((duration % 3600) // 60)} minutes, {int(duration % 60)} seconds")
-        # Print the head of df
+        print(f"Time taken preprocess_and_load_data: {int(duration // 3600)} hours, {int((duration % 3600) // 60)} minutes, {int(duration % 60)} seconds"
         print("Head of df:")
         print(tabulate(df.head(10), headers='keys', tablefmt='orgtbl'))
         return df
@@ -193,7 +192,7 @@ async def fetch_new_data(url, headers):
                 hours = int(elapsed_time // 3600)
                 minutes = int((elapsed_time % 3600) // 60)
                 seconds = int(elapsed_time % 60)
-                print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")  # Print time taken
+                print(f"Time taken: {hours} hours, {minutes} minutes, {seconds} seconds")  
                 return pd.read_html(html)[0]
     except Exception as e:
         print(f"Error during data fetching: {e}")
@@ -426,7 +425,7 @@ def feature_engineering(df, model_lr, model_rf, model_gbm, model_xgb, model_stac
         df['Stacking_Prediction'] = predictions_stacking
 
         print("Feature engineering completed.")
-        print(f"Time taken for Feature engineering: {hours} hours, {minutes} minutes, {seconds} seconds")  # Print time taken
+        print(f"Time taken for Feature engineering: {hours} hours, {minutes} minutes, {seconds} seconds")  
 
         return df
 
